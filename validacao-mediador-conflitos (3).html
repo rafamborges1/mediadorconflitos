@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pesquisa Validação - Mediador de Conflitos</title>
+<meta name="description" content="Um experimento de 3 minutos sobre comunicação em momentos de conflito." />
+<meta property="og:title" content="Pesquisa Validação - Mediador de Conflitos" />
+<meta property="og:description" content="Antes de apertar enviar: um experimento de 3 minutos sobre comunicação em momentos de conflito." />
+<meta property="og:type" content="website" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #17302C;
+    --parchment: #F7F2E9;
+    --ember: #E2622B;
+    --calm: #3FA796;
+    --muted: #8B8578;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--ink);
+  }
+  .hero {
+    padding: 72px 28px 56px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--calm);
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(36px, 6vw, 52px);
+    line-height: 1.05;
+    color: var(--parchment);
+    margin: 0 0 20px 0;
+  }
+  .hero p {
+    color: #C9C2B0;
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 480px;
+    text-align: justify;
+    text-justify: inter-word;
+  }
+  .card {
+    background: var(--parchment);
+    border-radius: 28px 28px 0 0;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 8px 28px 56px;
+  }
+  .section {
+    padding: 40px 0;
+    border-bottom: 1px solid #E2DCCC;
+  }
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .section h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 24px;
+    margin: 0 0 4px 0;
+    color: var(--ink);
+  }
+  .section .sub {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 4px 0 0;
+    text-align: justify;
+    text-justify: inter-word;
+  }
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .choice-btn {
+    text-align: left;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1.5px solid #DCD6C8;
+    background: transparent;
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .choice-btn.selected {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--parchment);
+  }
+  textarea {
+    width: 100%;
+    min-height: 90px;
+    padding: 14px;
+    border-radius: 10px;
+    border: 1.5px solid #DCD6C8;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    resize: vertical;
+    background: #FFFEFB;
+    margin-top: 10px;
+  }
+  .gauge-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .gauge-track {
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--ember), var(--calm));
+    position: relative;
+  }
+  .gauge-dot {
+    position: absolute;
+    top: -3px;
+    left: calc(100% - 6px);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--parchment);
+    border: 2px solid var(--ink);
+  }
+  .exemplo { margin-bottom: 20px; }
+  .bubble {
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+  .bubble.original { background: #FBEAE1; border-left: 3px solid var(--ember); }
+  .bubble.reformulada { background: #E4F3EF; border-left: 3px solid var(--calm); }
+  .bubble-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .bubble.original .bubble-label { color: var(--ember); }
+  .bubble.reformulada .bubble-label { color: var(--calm); }
+  .bubble-text { font-size: 15px; color: var(--ink); text-align: justify; text-justify: inter-word; }
+  .nota { font-size: 13px; color: var(--muted); font-style: italic; margin-top: 6px; text-align: justify; text-justify: inter-word; }
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 999px;
+    border: none;
+    background: #CFC9BA;
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: default;
+    margin-top: 32px;
+    transition: background 0.2s ease;
+  }
+  .submit-btn.ready { background: var(--calm); cursor: pointer; }
+  .erro { color: var(--ember); font-size: 13px; margin-top: 12px; }
+  .obrigado {
+    padding: 56px 0;
+    text-align: center;
+    display: none;
+  }
+  .obrigado h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 26px;
+    color: var(--ink);
+    margin-top: 24px;
+  }
+  .obrigado p { color: var(--muted); font-size: 15px; margin-top: 8px; text-align: justify; text-justify: inter-word; }
+  #formWrap.hidden { display: none; }
+</style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="eyebrow">Pesquisa Validação - Mediador de Conflitos · By: RafaBorges</div>
+    <h1>Respire antes, converse depois</h1>
+    <p>Testando uma IA que sugere uma versão mais calma da sua mensagem antes de você enviar. Leva 3 minutos. Suas respostas são anônimas.</p>
+  </div>
+
+  <div class="card">
+    <div id="formWrap">
+      <form id="pesquisa">
+
+        <div class="section">
+          <div class="section-number">01 — já aconteceu com você?</div>
+          <h2>Mensagens que saem antes de pensar</h2>
+          <p class="sub">Você já mandou uma mensagem pro seu parceiro(a) que se arrependeu depois?</p>
+          <div class="choices" data-field="arrependeu">
+            <button type="button" class="choice-btn">Sim, aconteceu recentemente</button>
+            <button type="button" class="choice-btn">Sim, mas faz tempo</button>
+            <button type="button" class="choice-btn">Não lembro de nenhuma</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-number">02 — frequência</div>
+          <h2>Com que frequência isso acontece?</h2>
+          <div class="choices" data-field="frequencia">
+            <button type="button" class="choice-btn">Toda semana</button>
+            <button type="button" class="choice-btn">Algumas vezes por mês</button>
+            <button type="button" class="choice-btn">Raramente</button>
+            <button type="button" class="choice-btn">Quase nunca</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-number">03 — o depois</div>
+          <h2>O que costuma acontecer em seguida?</h2>
+          <div class="choices" data-field="depois">
+            <button type="button" class="choice-btn">Eu me desculpo depois</button>
+            <button type="button" class="choice-btn">A gente ignora e segue</button>
+            <button type="button" class="choice-btn">Vira uma briga maior</button>
+            <button type="button" class="choice-btn">Varia bastante</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-number">04 — como funcionaria</div>
+          <h2>Veja a mágica acontecer: dois exemplos reais</h2>
+          <p class="sub">Chegou a parte que você estava esperando. Abaixo, duas mensagens "no calor da hora" — e a versão que a IA sugeriria no lugar delas.</p>
+          <div style="margin-top:16px;">
+            <div class="gauge-label"><span>quente</span><span>calmo</span></div>
+            <div class="gauge-track"><div class="gauge-dot"></div></div>
+            <div style="margin-top:20px;">
+              <div class="exemplo">
+                <div class="bubble original">
+                  <div class="bubble-label">original</div>
+                  <div class="bubble-text">Você nunca me escuta, é sempre a mesma coisa com você.</div>
+                </div>
+                <div class="bubble reformulada">
+                  <div class="bubble-label">reformulada</div>
+                  <div class="bubble-text">Eu sinto que não fui ouvido(a) agora, e isso me machuca — queria muito conversar sobre isso com calma.</div>
+                </div>
+                <div class="nota">Tira a generalização ("nunca", "sempre") e troca acusação por sentimento.</div>
+              </div>
+              <div class="exemplo">
+                <div class="bubble original">
+                  <div class="bubble-label">original</div>
+                  <div class="bubble-text">Ótimo, faz o que você quiser, como sempre.</div>
+                </div>
+                <div class="bubble reformulada">
+                  <div class="bubble-label">reformulada</div>
+                  <div class="bubble-text">Fiquei chateado(a) com essa decisão e gostaria que a gente pensasse nisso junto da próxima vez.</div>
+                </div>
+                <div class="nota">Tira o sarcasmo e diz claramente o que doeu e o que a pessoa precisa.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-number">05 — sua vez</div>
+          <h2>Se quiser, escreva uma mensagem "quente" que você já mandou ou quis mandar</h2>
+          <p class="sub">Opcional — isso me ajuda a entender melhor o tipo de situação que vocês enfrentam.</p>
+          <textarea name="mensagem" placeholder="Ex: Você nunca me escuta, sempre é a mesma coisa..."></textarea>
+        </div>
+
+        <div class="section">
+          <div class="section-number">06 — sua opinião</div>
+          <h2>Os exemplos captaram o que a pessoa queria dizer, só que melhor?</h2>
+          <div class="choices" data-field="captou">
+            <button type="button" class="choice-btn">Sim, captaram bem</button>
+            <button type="button" class="choice-btn">Mais ou menos</button>
+            <button type="button" class="choice-btn">Não, perderam o sentido</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-number">07 — no calor do momento</div>
+          <h2>Você pausaria pra ler uma sugestão assim antes de enviar?</h2>
+          <div class="choices" data-field="pausaria">
+            <button type="button" class="choice-btn">Sim, sempre</button>
+            <button type="button" class="choice-btn">Às vezes, depende do dia</button>
+            <button type="button" class="choice-btn">Não, eu mandaria do jeito que veio</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-number">08 — disposição a pagar</div>
+          <h2>Você pagaria por algo assim?</h2>
+          <div class="choices" data-field="pagaria">
+            <button type="button" class="choice-btn">Não pagaria, só se for grátis</button>
+            <button type="button" class="choice-btn">Grátis com anúncios</button>
+            <button type="button" class="choice-btn">R$5–15 por mês</button>
+            <button type="button" class="choice-btn">R$20 ou mais por mês</button>
+          </div>
+        </div>
+
+        <div class="section" style="border-bottom:none;">
+          <div class="section-number">09 — privacidade</div>
+          <h2>Teria receio de um app ler suas mensagens pra isso funcionar?</h2>
+          <div class="choices" data-field="privacidade">
+            <button type="button" class="choice-btn">Nenhum receio</button>
+            <button type="button" class="choice-btn">Um pouco de receio</button>
+            <button type="button" class="choice-btn">Bastante receio</button>
+          </div>
+        </div>
+
+        <div id="erroMsg" class="erro" style="display:none;"></div>
+        <button type="submit" class="submit-btn" id="submitBtn" disabled>Enviar minhas respostas</button>
+      </form>
+    </div>
+
+    <div class="obrigado" id="obrigado">
+      <div class="gauge-label"><span>quente</span><span>calmo</span></div>
+      <div class="gauge-track"><div class="gauge-dot"></div></div>
+      <h2>Obrigado(a) pela sinceridade</h2>
+      <p>Suas respostas ajudam a entender se essa ideia vale a pena virar algo real.</p>
+    </div>
+  </div>
+
+<script>
+  const FORM_ENDPOINT = "https://formspree.io/f/xoeajlgv";
+
+  const respostas = {};
+  const grupos = document.querySelectorAll(".choices");
+
+  grupos.forEach((grupo) => {
+    const field = grupo.dataset.field;
+    grupo.querySelectorAll(".choice-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        grupo.querySelectorAll(".choice-btn").forEach((b) => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        respostas[field] = btn.textContent;
+        checarCompleto();
+      });
+    });
+  });
+
+  const camposObrigatorios = ["arrependeu", "frequencia", "depois", "captou", "pausaria", "pagaria", "privacidade"];
+  const submitBtn = document.getElementById("submitBtn");
+
+  function checarCompleto() {
+    const completo = camposObrigatorios.every((f) => respostas[f]);
+    submitBtn.disabled = !completo;
+    submitBtn.classList.toggle("ready", completo);
+  }
+
+  document.getElementById("pesquisa").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (submitBtn.disabled) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Enviando…";
+    const erroMsg = document.getElementById("erroMsg");
+    erroMsg.style.display = "none";
+
+    const mensagem = document.querySelector('textarea[name="mensagem"]').value;
+    const payload = { ...respostas, mensagem, timestamp: new Date().toISOString() };
+
+    try {
+      const resp = await fetch(FORM_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (resp.ok) {
+        document.getElementById("formWrap").classList.add("hidden");
+        document.getElementById("obrigado").style.display = "block";
+      } else {
+        throw new Error("Falha no envio");
+      }
+    } catch (err) {
+      erroMsg.textContent = "Não consegui enviar suas respostas agora. Tente novamente em alguns segundos.";
+      erroMsg.style.display = "block";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Enviar minhas respostas";
+    }
+  });
+</script>
+
+</body>
+</html>
